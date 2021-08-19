@@ -4,6 +4,8 @@ import Web3 from "web3";
 import Event from "../abis/Event.json";
 import EventCreator from "../abis/EventCreator.json";
 import Dropdown from "../components/shared/Dropdown";
+import Link from "next/link";
+import { convertEpochToDate } from "../helper/functions";
 
 export default function Home() {
   const [events, setEvents] = useState([]);
@@ -48,6 +50,7 @@ export default function Home() {
             price: d[4],
             startDate: d[5],
             endDate: d[6],
+            address: eventAddress,
           };
           tmp.unshift(details); // push to front, we want newest events first
         }
@@ -60,36 +63,33 @@ export default function Home() {
     loadBlockchainData();
   }, []);
 
-  const convertEpochToDate = (epoch) => {
-    var myDate = new Date(epoch * 1000);
-    return myDate.toLocaleString();
-  };
-
   return (
     <div>
       <div className="mt-5 md:mt-0 md:col-span-2">
         {events.map((event, index) => {
           return (
             <div key={index} className="py-4 flex items-center">
-              <div className="container mx-auto p-9 bg-white max-w-sm rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition duration-300">
-                <div className="relative w-auto h-40 mb-4">
-                  <Image className="rounded-xl" src={`https://ipfs.io/ipfs/${event.image}`} layout="fill" objectFit="contain" alt="" />
-                </div>
-                <div className="flex justify-between items-center">
-                  <div className="w-full">
-                    <div className="flex">
-                      <h1 className="flex-1 text-xl text-green-600">{event.title}</h1>
-                      <Dropdown />
-                    </div>
+              <Link href={`/event/${event.address}`} passHref>
+                <div className="container mx-auto p-9 bg-white max-w-sm rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition duration-300 cursor-pointer">
+                  <div className="relative w-auto h-40 mb-4">
+                    <Image className="rounded-xl" src={`https://ipfs.io/ipfs/${event.image}`} layout="fill" objectFit="contain" alt="" />
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div className="w-full">
+                      <div className="flex">
+                        <h1 className="flex-1 text-xl text-green-600">{event.title}</h1>
+                        <Dropdown />
+                      </div>
 
-                    <p className="my-2 text-xs">{event.description}</p>
-                    <p className="my-2 text-xs">📍 {event.location}</p>
-                    <p className="my-2 text-xs">{event.price} wei</p>
-                    <p className="my-2 text-xs">📅 Start Date - {convertEpochToDate(event.startDate)}</p>
-                    <p className="my-2 text-xs">📅 End Date - {convertEpochToDate(event.endDate)}</p>
+                      <p className="my-2 text-xs">{event.description}</p>
+                      <p className="my-2 text-xs">📍 {event.location}</p>
+                      <p className="my-2 text-xs">{event.price} wei</p>
+                      <p className="my-2 text-xs">📅 Start Date - {convertEpochToDate(event.startDate)}</p>
+                      <p className="my-2 text-xs">📅 End Date - {convertEpochToDate(event.endDate)}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             </div>
           );
         })}
