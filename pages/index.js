@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import Web3 from "web3";
 import Event from "../abis/Event.json";
 import EventCreator from "../abis/EventCreator.json";
-import Dropdown from "../components/shared/Dropdown";
 import Link from "next/link";
 import { convertEpochToDate } from "../helper/functions";
 
@@ -76,16 +75,9 @@ export default function Home() {
                   </div>
                   <div className="flex justify-between items-center">
                     <div className="w-full">
-                      <div className="flex">
-                        <h1 className="flex-1 text-xl text-green-600">{event.title}</h1>
-                        <Dropdown />
-                      </div>
-
-                      <p className="my-2 text-xs">{event.description}</p>
+                      <h1 className="mx-auto mt-4 mb-4 text-xl font-semibold text-black">{event.title}</h1>
+                      <p className="my-2 text-xs">📅 {convertEpochToDate(event.startDate)}</p>
                       <p className="my-2 text-xs">📍 {event.location}</p>
-                      <p className="my-2 text-xs">{event.price} wei</p>
-                      <p className="my-2 text-xs">📅 Start Date - {convertEpochToDate(event.startDate)}</p>
-                      <p className="my-2 text-xs">📅 End Date - {convertEpochToDate(event.endDate)}</p>
                     </div>
                   </div>
                 </div>

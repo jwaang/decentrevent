@@ -21,9 +21,11 @@ const Navbar = () => {
                     Home
                   </a>
                 </Link>
-                <a href="/create" className="text-gray-800 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                  Create Event
-                </a>
+                <Link href="/create">
+                  <a className="text-gray-800 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" aria-current="page">
+                    Create Event
+                  </a>
+                </Link>
               </div>
             </div>
           </div>
