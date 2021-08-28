@@ -65,26 +65,44 @@ export default function Home() {
   return (
     <div>
       <div className="mt-5 md:mt-0 md:col-span-2">
-        {events.map((event, index) => {
-          return (
-            <div key={index} className="py-4 flex items-center">
-              <Link href={`/event/${event.address}`} passHref>
-                <div className="container mx-auto p-9 bg-white max-w-sm rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition duration-300 cursor-pointer">
-                  <div className="relative w-auto h-40 mb-4">
-                    <Image className="rounded-xl" src={`https://ipfs.io/ipfs/${event.image}`} layout="fill" objectFit="contain" alt="" />
+        {events.length > 0 ? (
+          events.map((event, index) => {
+            return (
+              <div key={index} className="py-4 flex items-center">
+                <Link href={`/event/${event.address}`} passHref>
+                  <div className="container mx-auto p-9 bg-white max-w-sm rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition duration-300 cursor-pointer">
+                    <div className="relative w-auto h-40 mb-4">
+                      <Image className="rounded-xl" src={`https://ipfs.io/ipfs/${event.image}`} layout="fill" objectFit="contain" alt="" />
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="w-full">
+                        <h1 className="mx-auto mt-4 mb-4 text-xl font-semibold text-black">{event.title}</h1>
+                        <p className="my-2 text-xs">📅 {convertEpochToDate(event.startDate)}</p>
+                        <p className="my-2 text-xs">📍 {event.location}</p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <div className="w-full">
-                      <h1 className="mx-auto mt-4 mb-4 text-xl font-semibold text-black">{event.title}</h1>
-                      <p className="my-2 text-xs">📅 {convertEpochToDate(event.startDate)}</p>
-                      <p className="my-2 text-xs">📍 {event.location}</p>
+                </Link>
+              </div>
+            );
+          })
+        ) : (
+          <div className="flex py-24 justify-center">
+            <div className="p-12 text-center max-w-2xl">
+              <div className="shadow overflow-hidden rounded-md">
+                <div className="px-4 py-5 bg-white p-6">
+                  <div className="md:text-3xl text-3xl font-bold">No events here... yet! 😯</div>
+                  <div className="text-xl font-normal mt-4">You can create one by clicking the button below</div>
+                  <div className="mt-6 flex justify-center h-12 relative">
+                    <div className="flex shadow-md font-medium absolute py-2 px-4 text-green-100 cursor-pointer rounded text-lg tr-mt border border-transparent rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                      <Link href="/create">Create Event</Link>
                     </div>
                   </div>
                 </div>
-              </Link>
+              </div>
             </div>
-          );
-        })}
+          </div>
+        )}
       </div>
     </div>
   );

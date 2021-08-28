@@ -26,6 +26,13 @@ export function BaseLayout({ children }) {
       await setPrimaryAccount(accounts[0]);
     }
 
+    // Check if account was switched in metamask
+    window.ethereum.on("accountsChanged", function (accounts) {
+      const web3 = window.web3;
+      web3.eth.defaultAccount = accounts[0];
+      setPrimaryAccount(accounts[0]);
+    });
+
     loadWeb3();
     loadBlockchainData();
   }, []);

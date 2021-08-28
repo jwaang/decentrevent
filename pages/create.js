@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import Web3 from "web3";
 import EventCreator from "../abis/EventCreator.json";
 import { useRouter } from "next/router";
+import { useAppContext } from "../layouts/BaseLayout";
 const IPFS = require("ipfs-core");
 
 export default function Create() {
   const router = useRouter();
-
+  const addr = useAppContext();
   const [primaryAccount, setPrimaryAccount] = useState(null);
   const [eventCreator, setEventCreator] = useState(null);
   const [imgBuffer, setImgBuffer] = useState(null);
@@ -77,10 +78,13 @@ export default function Create() {
       price: event.target.price.value,
       startOffset: event.target.startdate.value, // need to do calculation here
       endOffset: event.target.enddate.value, // calculation here
+      votingPeriodOffset: event.target.votingperiod.value, // calculation here
     };
 
+    console.log(formDetails);
+
     // Create Event
-    await eventCreator.methods
+    const e = await eventCreator.methods
       .createEvent(
         formDetails.ipfsHash,
         formDetails.title,
@@ -88,9 +92,12 @@ export default function Create() {
         formDetails.location,
         formDetails.price,
         formDetails.startOffset,
-        formDetails.endOffset
+        formDetails.endOffset,
+        formDetails.votingPeriodOffset
       )
-      .send({ from: primaryAccount.toString() });
+      .send({ from: addr.primaryAccount });
+    console.log(e);
+    console.log(addr.primaryAccount);
 
     // Redirect to Home
     router.push({ pathname: "/" });
@@ -182,6 +189,19 @@ export default function Create() {
                   <input
                     id="enddate"
                     enddate="enddate"
+                    type="text"
+                    required
+                    className="mt-1 focus:ring-green-500 focus:border-green-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                  />
+                </div>
+
+                <div className="col-span-3 sm:col-span-2">
+                  <label htmlFor="votingperiod" className="block text-sm font-medium text-gray-700">
+                    Voting Period Offset (in Seconds)
+                  </label>
+                  <input
+                    id="votingperiod"
+                    votingperiod="votingperiod"
                     type="text"
                     required
                     className="mt-1 focus:ring-green-500 focus:border-green-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"

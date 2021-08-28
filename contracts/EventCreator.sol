@@ -7,8 +7,8 @@ contract EventCreator{
     string public name = "Event Creator";
     uint public eventCount = 0;
 
-    function createEvent(string memory _image, string memory _title, string memory _description, string memory _location, uint _ticketPrice, uint _startDateOffset, uint _endDateOffset) public {
-        Event newEvent = new Event(msg.sender, _image, _title, _description, _location, _ticketPrice, _startDateOffset, _endDateOffset);
+    function createEvent(string memory _image, string memory _title, string memory _description, string memory _location, uint _ticketPrice, uint _startDateOffset, uint _endDateOffset, uint _votingPeriodOffset) public {
+        Event newEvent = new Event(msg.sender, _image, _title, _description, _location, _ticketPrice, _startDateOffset, _endDateOffset, _votingPeriodOffset);
         events.push(newEvent);
         ++eventCount;
     }
@@ -37,10 +37,11 @@ contract Event{
     uint public votingPeriodOffset;
     
     bool public isValid;
+    bool public isInvalidAndVoted;
     bool public isCanceled;
     
     /* Constructor */
-    constructor(address eoa, string memory _image, string memory _title, string memory _description, string memory _location, uint _ticketPrice, uint _startDateOffset, uint _endDateOffset){
+    constructor(address eoa, string memory _image, string memory _title, string memory _description, string memory _location, uint _ticketPrice, uint _startDateOffset, uint _endDateOffset, uint _votingPeriodOffset){
         require(_endDateOffset > _startDateOffset, "End date should be after start date!"); 
         coordinator = payable(eoa);
         image = _image;
@@ -50,7 +51,7 @@ contract Event{
         ticketPrice = _ticketPrice;
         startDate = block.timestamp + _startDateOffset;
         endDate = block.timestamp + _endDateOffset;
-        votingPeriodOffset = 120;
+        votingPeriodOffset = _votingPeriodOffset;
     }
     
     /* Events */
@@ -84,7 +85,7 @@ contract Event{
     
     // Participants refund option
     function getRefund() public notCoordinator {
-        require(isCanceled == true, "This event has to either be canceled!");
+        require(isInvalidAndVoted == true || isCanceled == true, "This event either has to be canceled or invalid to get a refund!");
 
         address payable recipient = payable(msg.sender);
         uint value = participants[msg.sender];
@@ -114,7 +115,7 @@ contract Event{
          if (numOfValidVotes > halfOfParticipants){
             isValid = true;
          } else if(numOfInvalidVotes > halfOfParticipants){
-            isValid = false;
+            isInvalidAndVoted = true;
          }
 
          emit VoteEvent(msg.sender, isValidEvent, numOfValidVotes, numOfInvalidVotes, numParticipants);
@@ -160,8 +161,20 @@ contract Event{
     }
 
     // helper - get event details 
-    function returnEventDetails() public view returns(string memory _image, string memory _title, string memory _description, string memory _location, uint _ticketPrice, uint _startDateOffset, uint _endDateOffset){
-        return (image, title, description, location, ticketPrice, startDate, endDate);
+    function returnEventDetails() public view returns(string memory _image, string memory _title, string memory _description, string memory _location, uint _ticketPrice, uint _startDateOffset, uint _endDateOffset, address _coordinator, uint _votingPeriodOffset){
+        return (image, title, description, location, ticketPrice, startDate, endDate, coordinator, endDate + votingPeriodOffset);
+    }
+
+    function getRole() public view returns(address _user, bool _isCoordinator, bool _isParticipant){
+        bool isCoordinator = false;
+        bool isParticipant = false;
+        if (msg.sender == coordinator) isCoordinator = true;
+        if (participants[msg.sender] > 0) isParticipant = true;
+        return (address(msg.sender), isCoordinator, isParticipant);
+    }
+
+    function getEventState() public view returns(bool _isValid, bool _isCanceled, bool _isInvalidAndVoted){
+        return (isValid, isCanceled, isInvalidAndVoted);
     }
     
     /* Function Modifiers */
@@ -181,7 +194,7 @@ contract Event{
     }
     
     modifier notCanceled() {
-        require(isCanceled == false, "This event has been canceled!");
+        require(isCanceled == false, "This event has already been canceled!");
         _;
     }
 }
